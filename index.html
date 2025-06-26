@@ -327,15 +327,34 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script>
         let customerData = {};
 
-        function saveFeedback(data) {
-            // Save feedback data to browser console for now
-            console.log('Customer Feedback Submitted:', data);
-            
-            // Later you can set up email notifications via EmailJS or other services
-            // For now, check browser console (F12) to see all submitted feedback
+        // EmailJS Configuration
+        const EMAILJS_PUBLIC_KEY = 'uhKO98S0f2bW6QEZj';
+        const EMAILJS_SERVICE_ID = 'service_bua09v8';
+        const EMAILJS_TEMPLATE_ID = 'template_jm7g5bc';
+
+        // Initialize EmailJS
+        emailjs.init(EMAILJS_PUBLIC_KEY);
+
+        function sendFeedbackEmail(data) {
+            const templateParams = {
+                customer_name: data.name,
+                order_number: data.orderNumber,
+                satisfaction: data.satisfied ? 'Satisfied ✅' : 'Not Satisfied ❌',
+                feedback: data.feedback,
+                timestamp: new Date().toLocaleString(),
+                reward_amount: '$5'
+            };
+
+            emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
+                .then(function(response) {
+                    console.log('✅ Feedback email sent successfully!', response.status, response.text);
+                }, function(error) {
+                    console.log('❌ Failed to send feedback email:', error);
+                });
         }
 
         function returnToStart() {
@@ -389,7 +408,8 @@
             customerData.satisfied = false;
             customerData.timestamp = new Date().toLocaleString();
             
-            saveFeedback(customerData);
+            // Send email notification
+            sendFeedbackEmail(customerData);
             
             document.getElementById('unhappy-feedback').classList.add('hidden');
             document.getElementById('unhappy-thankyou').classList.remove('hidden');
@@ -412,7 +432,8 @@
             customerData.satisfied = true;
             customerData.timestamp = new Date().toLocaleString();
             
-            saveFeedback(customerData);
+            // Send email notification
+            sendFeedbackEmail(customerData);
             
             navigator.clipboard.writeText(feedback).then(function() {
                 document.getElementById('happy-feedback').classList.add('hidden');
