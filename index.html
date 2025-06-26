@@ -142,6 +142,18 @@
             box-shadow: 0 5px 15px rgba(243, 156, 18, 0.4);
         }
 
+        .btn-amazon {
+            background: #FF9900;
+            color: white;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .btn-amazon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 153, 0, 0.4);
+        }
+
         .btn-return {
             background: #95A5A6;
             color: white;
@@ -316,7 +328,7 @@
                 <br><br>
                 Your $5 feedback reward will be processed soon!
             </div>
-            <button class="btn btn-primary" onclick="openAmazon()" style="background: #FF9900; margin-top: 20px;">
+            <button class="btn btn-amazon" onclick="openAmazon()">
                 📦 Open Amazon Review Page
             </button>
         </div>
@@ -353,6 +365,7 @@
         }
 
         function returnToStart() {
+            // Hide all sections
             document.getElementById('satisfaction-question').classList.add('hidden');
             document.getElementById('unhappy-feedback').classList.add('hidden');
             document.getElementById('unhappy-thankyou').classList.add('hidden');
@@ -360,13 +373,16 @@
             document.getElementById('review-instructions').classList.add('hidden');
             document.getElementById('final-steps').classList.add('hidden');
             
+            // Show initial form
             document.getElementById('initial-form').classList.remove('hidden');
             
+            // Clear form data
             document.getElementById('customer-name').value = '';
             document.getElementById('order-number').value = '';
             document.getElementById('negative-feedback').value = '';
             document.getElementById('positive-feedback').value = '';
             
+            // Reset customer data
             customerData = {};
         }
 
@@ -391,6 +407,11 @@
             document.getElementById('unhappy-feedback').classList.remove('hidden');
         }
 
+        function handleHappy() {
+            document.getElementById('satisfaction-question').classList.add('hidden');
+            document.getElementById('happy-feedback').classList.remove('hidden');
+        }
+
         function submitNegativeFeedback() {
             const feedback = document.getElementById('negative-feedback').value.trim();
             
@@ -410,11 +431,6 @@
             document.getElementById('unhappy-thankyou').classList.remove('hidden');
         }
 
-        function handleHappy() {
-            document.getElementById('satisfaction-question').classList.add('hidden');
-            document.getElementById('happy-feedback').classList.remove('hidden');
-        }
-
         function submitPositiveFeedback() {
             const feedback = document.getElementById('positive-feedback').value.trim();
             
@@ -430,25 +446,41 @@
             // Send email notification
             sendFeedbackEmail(customerData);
             
-            navigator.clipboard.writeText(feedback).then(function() {
+            // Copy feedback to clipboard
+            try {
+                navigator.clipboard.writeText(feedback).then(function() {
+                    console.log('✅ Feedback copied to clipboard');
+                    document.getElementById('happy-feedback').classList.add('hidden');
+                    document.getElementById('review-instructions').classList.remove('hidden');
+                }).catch(function(err) {
+                    console.log('❌ Failed to copy to clipboard:', err);
+                    // Still proceed to next step even if copy fails
+                    document.getElementById('happy-feedback').classList.add('hidden');
+                    document.getElementById('review-instructions').classList.remove('hidden');
+                });
+            } catch (err) {
+                console.log('❌ Clipboard not supported:', err);
+                // Still proceed to next step
                 document.getElementById('happy-feedback').classList.add('hidden');
                 document.getElementById('review-instructions').classList.remove('hidden');
-            }).catch(function(err) {
-                document.getElementById('happy-feedback').classList.add('hidden');
-                document.getElementById('review-instructions').classList.remove('hidden');
-            });
+            }
         }
 
         function shareReview() {
+            // Show flash message
             const flashMessage = document.createElement('div');
             flashMessage.className = 'flash-message';
             flashMessage.textContent = 'Your feedback has been copied to your clipboard';
             document.body.appendChild(flashMessage);
             
+            // Remove flash message after 2 seconds
             setTimeout(() => {
-                document.body.removeChild(flashMessage);
+                if (document.body.contains(flashMessage)) {
+                    document.body.removeChild(flashMessage);
+                }
             }, 2000);
             
+            // Move to final steps
             document.getElementById('review-instructions').classList.add('hidden');
             document.getElementById('final-steps').classList.remove('hidden');
         }
