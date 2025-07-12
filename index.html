@@ -91,6 +91,48 @@
             box-shadow: 0 0 10px rgba(247, 220, 111, 0.5);
         }
 
+        .product-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .product-option {
+            border: 2px solid #ddd;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            text-align: center;
+        }
+
+        .product-option:hover {
+            border-color: #F39C12;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.2);
+        }
+
+        .product-option.selected {
+            border-color: #F39C12;
+            background: #FEF9E7;
+            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.3);
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: #2C3E50;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .product-price {
+            font-size: 1.1rem;
+            color: #F39C12;
+            font-weight: bold;
+        }
+
         .button-group {
             display: flex;
             gap: 15px;
@@ -263,7 +305,33 @@
                 <input type="text" id="order-number" placeholder="Enter your Amazon order number">
             </div>
             
-            <button class="btn btn-primary" onclick="proceedToSatisfaction()">Continue</button>
+            <button class="btn btn-primary" onclick="proceedToProductSelection()">Continue</button>
+        </div>
+
+        <!-- Product Selection -->
+        <div id="product-selection" class="hidden">
+            <div class="header-text">Select the item you purchased</div>
+            <div class="subheader-text">Please choose the product you ordered from us</div>
+            
+            <div class="product-grid">
+                <div class="product-option" onclick="selectProduct('portable-blender')">
+                    <div class="product-name">Portable Blender</div>
+                    <div class="product-price">$21.95</div>
+                </div>
+                
+                <div class="product-option" onclick="selectProduct('shaker-blender')">
+                    <div class="product-name">Shaker Blender</div>
+                    <div class="product-price">$19.95</div>
+                </div>
+                
+                <div class="product-option" onclick="selectProduct('heated-pad-mug')">
+                    <div class="product-name">Mug & Heat Pad</div>
+                    <div class="product-price">$24.95</div>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary" onclick="proceedToSatisfaction()" id="continue-btn" style="opacity: 0.5; cursor: not-allowed;" disabled>Continue</button>
+            <button class="btn btn-return" onclick="returnToStart()">← Return to Start</button>
         </div>
 
         <!-- Satisfaction Question -->
@@ -308,33 +376,35 @@
                 <textarea id="positive-feedback" placeholder="Tell us what you loved about your experience..."></textarea>
             </div>
             
+            <div class="subheader-text" style="margin-top: 15px; margin-bottom: 15px;">
+                Your text will be copied to your clipboard just click paste and leave it on amazon to complete your feedback
+            </div>
+            
             <button class="btn btn-primary" onclick="submitPositiveFeedback()">Submit Feedback</button>
         </div>
 
         <!-- Review Instructions -->
         <div id="review-instructions" class="hidden">
             <div class="message message-success">
-                Your feedback has been copied to your clipboard! Please share it as a 5 star review on Amazon.
+                Your text has been copied to your clipboard please share it as a review on amazon to complete your feedback
             </div>
             
-            <button class="btn btn-primary" onclick="shareReview()">Share as 5 Star Review on Amazon</button>
+            <button class="btn btn-primary" onclick="shareReview()">Complete Your Feedback</button>
         </div>
 
         <!-- Final Review Steps -->
         <div id="final-steps" class="hidden">
             <div class="stars">⭐⭐⭐⭐⭐</div>
             <div class="message message-success">
-                Please select 5 stars, click paste in the form and submit.
-                <br><br>
-                Your $5 feedback reward will be processed soon!
+                Submit your review on amazon to complete your feedback
             </div>
             <button class="btn btn-amazon" onclick="openAmazon()">
-                📦 Open Amazon Review Page
+                Complete Feedback
             </button>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/emailjs/2.6.4/email.min.js"></script>
     <script>
         let customerData = {};
 
@@ -343,35 +413,55 @@
         const EMAILJS_SERVICE_ID = 'service_bua09v8';
         const EMAILJS_TEMPLATE_ID = 'template_jm7g5bc';
 
-        // Initialize EmailJS
-        emailjs.init(EMAILJS_PUBLIC_KEY);
+        // Initialize EmailJS with error handling
+        let emailjsInitialized = false;
+        try {
+            if (typeof emailjs !== 'undefined') {
+                emailjs.init(EMAILJS_PUBLIC_KEY);
+                emailjsInitialized = true;
+                console.log('✅ EmailJS initialized successfully');
+            }
+        } catch (error) {
+            console.log('❌ EmailJS initialization failed:', error);
+            emailjsInitialized = false;
+        }
 
         function sendFeedbackEmail(data) {
-            const templateParams = {
-                customer_name: data.name,
-                order_number: data.orderNumber,
-                satisfaction: data.satisfied ? 'Satisfied ✅' : 'Not Satisfied ❌',
-                feedback: data.feedback,
-                timestamp: new Date().toLocaleString(),
-                reward_amount: '$5'
-            };
+            // Only try to send email if EmailJS is properly initialized
+            if (!emailjsInitialized || typeof emailjs === 'undefined') {
+                console.log('⚠️ EmailJS not available, skipping email send');
+                return;
+            }
 
-            emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
-                .then(function(response) {
-                    console.log('✅ Feedback email sent successfully!', response.status, response.text);
-                }, function(error) {
-                    console.log('❌ Failed to send feedback email:', error);
-                });
+            try {
+                const templateParams = {
+                    customer_name: data.name,
+                    order_number: data.orderNumber,
+                    product: data.product,
+                    satisfaction: data.satisfied ? 'Satisfied ✅' : 'Not Satisfied ❌',
+                    feedback: data.feedback,
+                    timestamp: new Date().toLocaleString(),
+                    reward_amount: '$5'
+                };
+
+                emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
+                    .then(function(response) {
+                        console.log('✅ Feedback email sent successfully!', response.status, response.text);
+                    }, function(error) {
+                        console.log('❌ Failed to send feedback email:', error);
+                    });
+            } catch (error) {
+                console.log('❌ Error sending feedback email:', error);
+            }
         }
 
         function returnToStart() {
             // Hide all sections
+            document.getElementById('product-selection').classList.add('hidden');
             document.getElementById('satisfaction-question').classList.add('hidden');
             document.getElementById('unhappy-feedback').classList.add('hidden');
             document.getElementById('unhappy-thankyou').classList.add('hidden');
             document.getElementById('happy-feedback').classList.add('hidden');
-            document.getElementById('review-instructions').classList.add('hidden');
-            document.getElementById('final-steps').classList.add('hidden');
             
             // Show initial form
             document.getElementById('initial-form').classList.remove('hidden');
@@ -382,11 +472,19 @@
             document.getElementById('negative-feedback').value = '';
             document.getElementById('positive-feedback').value = '';
             
+            // Reset product selection
+            document.querySelectorAll('.product-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            document.getElementById('continue-btn').style.opacity = '0.5';
+            document.getElementById('continue-btn').style.cursor = 'not-allowed';
+            document.getElementById('continue-btn').disabled = true;
+            
             // Reset customer data
             customerData = {};
         }
 
-        function proceedToSatisfaction() {
+        function proceedToProductSelection() {
             const name = document.getElementById('customer-name').value.trim();
             const orderNumber = document.getElementById('order-number').value.trim();
             
@@ -399,6 +497,35 @@
             customerData.orderNumber = orderNumber;
             
             document.getElementById('initial-form').classList.add('hidden');
+            document.getElementById('product-selection').classList.remove('hidden');
+        }
+
+        function selectProduct(productType) {
+            // Remove selection from all products
+            document.querySelectorAll('.product-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Add selection to clicked product
+            event.target.closest('.product-option').classList.add('selected');
+            
+            // Store selected product
+            customerData.product = productType;
+            
+            // Enable continue button
+            const continueBtn = document.getElementById('continue-btn');
+            continueBtn.style.opacity = '1';
+            continueBtn.style.cursor = 'pointer';
+            continueBtn.disabled = false;
+        }
+
+        function proceedToSatisfaction() {
+            if (!customerData.product) {
+                alert('Please select a product before continuing.');
+                return;
+            }
+            
+            document.getElementById('product-selection').classList.add('hidden');
             document.getElementById('satisfaction-question').classList.remove('hidden');
         }
 
@@ -446,47 +573,42 @@
             // Send email notification
             sendFeedbackEmail(customerData);
             
-            // Copy feedback to clipboard
+            // Copy feedback to clipboard and go directly to Amazon
             try {
                 navigator.clipboard.writeText(feedback).then(function() {
                     console.log('✅ Feedback copied to clipboard');
-                    document.getElementById('happy-feedback').classList.add('hidden');
-                    document.getElementById('review-instructions').classList.remove('hidden');
+                    openAmazon();
                 }).catch(function(err) {
                     console.log('❌ Failed to copy to clipboard:', err);
-                    // Still proceed to next step even if copy fails
-                    document.getElementById('happy-feedback').classList.add('hidden');
-                    document.getElementById('review-instructions').classList.remove('hidden');
+                    // Still go to Amazon even if copy fails
+                    openAmazon();
                 });
             } catch (err) {
                 console.log('❌ Clipboard not supported:', err);
-                // Still proceed to next step
-                document.getElementById('happy-feedback').classList.add('hidden');
-                document.getElementById('review-instructions').classList.remove('hidden');
+                // Still go to Amazon
+                openAmazon();
             }
         }
 
-        function shareReview() {
-            // Show flash message
-            const flashMessage = document.createElement('div');
-            flashMessage.className = 'flash-message';
-            flashMessage.textContent = 'Your feedback has been copied to your clipboard';
-            document.body.appendChild(flashMessage);
-            
-            // Remove flash message after 2 seconds
-            setTimeout(() => {
-                if (document.body.contains(flashMessage)) {
-                    document.body.removeChild(flashMessage);
-                }
-            }, 2000);
-            
-            // Move to final steps
-            document.getElementById('review-instructions').classList.add('hidden');
-            document.getElementById('final-steps').classList.remove('hidden');
-        }
-
         function openAmazon() {
-            window.open('https://www.amazon.com/review/create-review/error?ie=UTF8&channel=glance-detail&asin=B0F82Z2C52', '_blank');
+            let amazonUrl;
+            
+            // Determine the correct Amazon URL based on selected product
+            switch(customerData.product) {
+                case 'portable-blender':
+                    amazonUrl = 'https://www.amazon.com/review/create-review?&asin=B0FBKLTSKS:5';
+                    break;
+                case 'shaker-blender':
+                    amazonUrl = 'https://www.amazon.com/review/create-review?&asin=B0F82Z2C52:5';
+                    break;
+                case 'heated-pad-mug':
+                    amazonUrl = 'https://www.amazon.com.au/review/create-review?&asin=B0DXFRG589:5';
+                    break;
+                default:
+                    amazonUrl = 'https://www.amazon.com/review/create-review/error?ie=UTF8&channel=glance-detail&asin=B0F82Z2C52';
+            }
+            
+            window.open(amazonUrl, '_blank');
         }
     </script>
 </body>
