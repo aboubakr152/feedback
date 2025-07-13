@@ -413,23 +413,28 @@
         const EMAILJS_SERVICE_ID = 'service_bua09v8';
         const EMAILJS_TEMPLATE_ID = 'template_jm7g5bc';
 
-        // Initialize EmailJS with error handling
-        let emailjsInitialized = false;
-        try {
-            if (typeof emailjs !== 'undefined') {
-                emailjs.init(EMAILJS_PUBLIC_KEY);
-                emailjsInitialized = true;
-                console.log('✅ EmailJS initialized successfully');
+        // Initialize EmailJS with proper error handling
+        let emailjsReady = false;
+
+        // Wait for EmailJS to load, then initialize
+        setTimeout(() => {
+            try {
+                if (typeof emailjs !== 'undefined') {
+                    emailjs.init(EMAILJS_PUBLIC_KEY);
+                    emailjsReady = true;
+                    console.log('✅ EmailJS initialized successfully');
+                } else {
+                    console.log('⚠️ EmailJS library not loaded');
+                }
+            } catch (error) {
+                console.log('❌ EmailJS initialization failed:', error);
             }
-        } catch (error) {
-            console.log('❌ EmailJS initialization failed:', error);
-            emailjsInitialized = false;
-        }
+        }, 1000);
 
         function sendFeedbackEmail(data) {
-            // Only try to send email if EmailJS is properly initialized
-            if (!emailjsInitialized || typeof emailjs === 'undefined') {
-                console.log('⚠️ EmailJS not available, skipping email send');
+            // Only try to send email if EmailJS is ready
+            if (!emailjsReady || typeof emailjs === 'undefined') {
+                console.log('⚠️ EmailJS not available, form will continue without email');
                 return;
             }
 
