@@ -284,6 +284,40 @@
         .hidden {
             display: none;
         }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .email-status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+
+        .email-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .email-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
     </style>
 </head>
 <body>
@@ -354,8 +388,10 @@
                 <textarea id="negative-feedback" placeholder="Please share your honest feedback..."></textarea>
             </div>
             
-            <button class="btn btn-primary" onclick="submitNegativeFeedback()">Submit Feedback</button>
+            <button class="btn btn-primary" onclick="submitNegativeFeedback()" id="negative-submit-btn">Submit Feedback</button>
             <button class="btn btn-return" onclick="returnToStart()">← Return to Start</button>
+            
+            <div id="negative-email-status"></div>
         </div>
 
         <!-- Unhappy Thank You -->
@@ -380,7 +416,9 @@
                 Your text will be copied to your clipboard just click paste and leave it on amazon to complete your feedback
             </div>
             
-            <button class="btn btn-primary" onclick="submitPositiveFeedback()">Submit Feedback</button>
+            <button class="btn btn-primary" onclick="submitPositiveFeedback()" id="positive-submit-btn">Submit Feedback</button>
+            
+            <div id="positive-email-status"></div>
         </div>
 
         <!-- Review Instructions -->
@@ -404,7 +442,8 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/emailjs/2.6.4/email.min.js"></script>
+    <!-- Updated EmailJS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script>
         let customerData = {};
 
@@ -413,14 +452,16 @@
         const EMAILJS_SERVICE_ID = 'service_bua09v8';
         const EMAILJS_TEMPLATE_ID = 'template_jm7g5bc';
 
-        // Initialize EmailJS with proper error handling
+        // Initialize EmailJS
         let emailjsReady = false;
 
-        // Wait for EmailJS to load, then initialize
-        setTimeout(() => {
+        // Initialize EmailJS when page loads
+        document.addEventListener('DOMContentLoaded', function() {
             try {
                 if (typeof emailjs !== 'undefined') {
-                    emailjs.init(EMAILJS_PUBLIC_KEY);
+                    emailjs.init({
+                        publicKey: EMAILJS_PUBLIC_KEY,
+                    });
                     emailjsReady = true;
                     console.log('✅ EmailJS initialized successfully');
                 } else {
@@ -429,13 +470,29 @@
             } catch (error) {
                 console.log('❌ EmailJS initialization failed:', error);
             }
-        }, 1000);
+        });
 
-        function sendFeedbackEmail(data) {
-            // Only try to send email if EmailJS is ready
+        function showEmailStatus(elementId, success, message) {
+            const statusElement = document.getElementById(elementId);
+            statusElement.innerHTML = `<div class="email-status ${success ? 'email-success' : 'email-error'}">${message}</div>`;
+        }
+
+        function showLoadingButton(buttonId, originalText) {
+            const button = document.getElementById(buttonId);
+            button.innerHTML = `<span class="loading-spinner"></span>Sending...`;
+            button.disabled = true;
+        }
+
+        function resetButton(buttonId, originalText) {
+            const button = document.getElementById(buttonId);
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }
+
+        async function sendFeedbackEmail(data, statusElementId) {
             if (!emailjsReady || typeof emailjs === 'undefined') {
-                console.log('⚠️ EmailJS not available, form will continue without email');
-                return;
+                showEmailStatus(statusElementId, false, '⚠️ Email service unavailable. Your feedback has been recorded locally.');
+                return false;
             }
 
             try {
@@ -449,14 +506,16 @@
                     reward_amount: '$5'
                 };
 
-                emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
-                    .then(function(response) {
-                        console.log('✅ Feedback email sent successfully!', response.status, response.text);
-                    }, function(error) {
-                        console.log('❌ Failed to send feedback email:', error);
-                    });
+                const response = await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+                
+                console.log('✅ Feedback email sent successfully!', response);
+                showEmailStatus(statusElementId, true, '✅ Feedback email sent successfully!');
+                return true;
+
             } catch (error) {
-                console.log('❌ Error sending feedback email:', error);
+                console.log('❌ Failed to send feedback email:', error);
+                showEmailStatus(statusElementId, false, '❌ Failed to send email. Your feedback has been recorded locally.');
+                return false;
             }
         }
 
@@ -467,6 +526,8 @@
             document.getElementById('unhappy-feedback').classList.add('hidden');
             document.getElementById('unhappy-thankyou').classList.add('hidden');
             document.getElementById('happy-feedback').classList.add('hidden');
+            document.getElementById('review-instructions').classList.add('hidden');
+            document.getElementById('final-steps').classList.add('hidden');
             
             // Show initial form
             document.getElementById('initial-form').classList.remove('hidden');
@@ -476,6 +537,10 @@
             document.getElementById('order-number').value = '';
             document.getElementById('negative-feedback').value = '';
             document.getElementById('positive-feedback').value = '';
+            
+            // Clear email status messages
+            document.getElementById('negative-email-status').innerHTML = '';
+            document.getElementById('positive-email-status').innerHTML = '';
             
             // Reset product selection
             document.querySelectorAll('.product-option').forEach(option => {
@@ -544,7 +609,7 @@
             document.getElementById('happy-feedback').classList.remove('hidden');
         }
 
-        function submitNegativeFeedback() {
+        async function submitNegativeFeedback() {
             const feedback = document.getElementById('negative-feedback').value.trim();
             
             if (!feedback) {
@@ -552,18 +617,27 @@
                 return;
             }
             
+            // Show loading state
+            showLoadingButton('negative-submit-btn', 'Submit Feedback');
+            
             customerData.feedback = feedback;
             customerData.satisfied = false;
             customerData.timestamp = new Date().toLocaleString();
             
             // Send email notification
-            sendFeedbackEmail(customerData);
+            const emailSent = await sendFeedbackEmail(customerData, 'negative-email-status');
             
-            document.getElementById('unhappy-feedback').classList.add('hidden');
-            document.getElementById('unhappy-thankyou').classList.remove('hidden');
+            // Reset button
+            resetButton('negative-submit-btn', 'Submit Feedback');
+            
+            // Wait a moment to show the email status, then proceed
+            setTimeout(() => {
+                document.getElementById('unhappy-feedback').classList.add('hidden');
+                document.getElementById('unhappy-thankyou').classList.remove('hidden');
+            }, 2000);
         }
 
-        function submitPositiveFeedback() {
+        async function submitPositiveFeedback() {
             const feedback = document.getElementById('positive-feedback').value.trim();
             
             if (!feedback) {
@@ -571,28 +645,40 @@
                 return;
             }
             
+            // Show loading state
+            showLoadingButton('positive-submit-btn', 'Submit Feedback');
+            
             customerData.feedback = feedback;
             customerData.satisfied = true;
             customerData.timestamp = new Date().toLocaleString();
             
             // Send email notification
-            sendFeedbackEmail(customerData);
+            const emailSent = await sendFeedbackEmail(customerData, 'positive-email-status');
             
-            // Copy feedback to clipboard and go directly to Amazon
-            try {
-                navigator.clipboard.writeText(feedback).then(function() {
-                    console.log('✅ Feedback copied to clipboard');
+            // Reset button
+            resetButton('positive-submit-btn', 'Submit Feedback');
+            
+            // Copy feedback to clipboard and go to Amazon after a short delay
+            setTimeout(() => {
+                try {
+                    navigator.clipboard.writeText(feedback).then(function() {
+                        console.log('✅ Feedback copied to clipboard');
+                        openAmazon();
+                    }).catch(function(err) {
+                        console.log('❌ Failed to copy to clipboard:', err);
+                        // Still go to Amazon even if copy fails
+                        openAmazon();
+                    });
+                } catch (err) {
+                    console.log('❌ Clipboard not supported:', err);
+                    // Still go to Amazon
                     openAmazon();
-                }).catch(function(err) {
-                    console.log('❌ Failed to copy to clipboard:', err);
-                    // Still go to Amazon even if copy fails
-                    openAmazon();
-                });
-            } catch (err) {
-                console.log('❌ Clipboard not supported:', err);
-                // Still go to Amazon
-                openAmazon();
-            }
+                }
+            }, 2000);
+        }
+
+        function shareReview() {
+            openAmazon();
         }
 
         function openAmazon() {
