@@ -397,14 +397,11 @@
         <!-- Unhappy Thank You -->
         <div id="unhappy-thankyou" class="hidden">
             <div class="message message-success">
-                Thank you so much for your feedback. Your response has been recorded locally and the email template is available in the browser console (F12). We will process your $5 feedback reward within the next few business days. We wish you all the best and thank you for shopping with The Yellow Mango.
+                Thank you so much for your feedback. Your response has been processed and we're attempting to send it automatically. We will match it with your order number and process your $5 feedback reward within the next few business days. We wish you all the best and thank you for shopping with The Yellow Mango.
             </div>
-            <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #6c757d;">
-                <strong>📧 Email Instructions:</strong><br>
-                1. Open browser console (F12)<br>
-                2. Look for the email template<br>
-                3. Copy and send manually to your admin email<br>
-                4. Or use <code>exportFeedbackAsEmail()</code> in console
+            <div id="unhappy-email-result" style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #6c757d;">
+                <strong>📧 Email Status:</strong><br>
+                <span id="unhappy-email-message">Processing...</span>
             </div>
         </div>
 
@@ -420,7 +417,7 @@
             </div>
             
             <div class="subheader-text" style="margin-top: 15px; margin-bottom: 15px;">
-                Your feedback will be stored locally and copied to clipboard. Email template is available in console (F12).
+                Your feedback will be sent automatically if possible, or stored locally with manual email instructions.
             </div>
             
             <button class="btn btn-primary" onclick="submitPositiveFeedback()" id="positive-submit-btn">Submit Feedback</button>
@@ -449,21 +446,92 @@
         </div>
     </div>
 
-    <!-- No External Dependencies - Local Storage + Manual Email Instructions -->
+    <!-- EmailJS with Automatic Loading & Fallback -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script type="text/javascript">
-        // EmailJS configuration (for when network issues are resolved)
+        // EmailJS configuration
         window.EMAILJS_CONFIG = {
             PUBLIC_KEY: 'QXeAzOq-Y_NVgZEzL',
             SERVICE_ID: 'service_bua09v8',
             TEMPLATE_ID: 'template_jm7g5bc'
         };
         
-        // Email is currently disabled due to network/firewall issues
+        // Initialize ready flag
         window.emailjsReady = false;
         
-        console.log('📧 EmailJS disabled - using local storage backup system');
-        console.log('🔧 To enable emails: check firewall/network settings blocking CDNs');
-        console.log('🔑 Using PUBLIC KEY: QXeAzOq-Y_NVgZEzL');
+        // Try immediate initialization
+        if (typeof emailjs !== 'undefined') {
+            try {
+                emailjs.init({
+                    publicKey: 'QXeAzOq-Y_NVgZEzL',
+                });
+                window.emailjsReady = true;
+                console.log('✅ EmailJS loaded immediately - AUTOMATIC EMAILS ENABLED');
+            } catch (e) {
+                console.log('⚠️ Simple initialization failed, trying alternatives...');
+            }
+        }
+    </script>
+    
+    <!-- Fallback CDN Loading -->
+    <script type="text/javascript">
+        if (!window.emailjsReady) {
+            console.log('🔄 Loading EmailJS from alternative CDNs...');
+            
+            const CDN_URLS = [
+                'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js',
+                'https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js',
+                'https://unpkg.com/@emailjs/browser@4/dist/email.min.js',
+                'https://unpkg.com/emailjs-com@3/dist/email.min.js'
+            ];
+            
+            async function loadEmailJSFromCDNs() {
+                for (let i = 0; i < CDN_URLS.length; i++) {
+                    const url = CDN_URLS[i];
+                    console.log(`📡 Trying CDN ${i + 1}/${CDN_URLS.length}: ${url}`);
+                    
+                    try {
+                        await new Promise((resolve, reject) => {
+                            const script = document.createElement('script');
+                            script.src = url;
+                            script.onload = resolve;
+                            script.onerror = reject;
+                            document.head.appendChild(script);
+                        });
+                        
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        
+                        if (typeof emailjs !== 'undefined') {
+                            try {
+                                emailjs.init({
+                                    publicKey: window.EMAILJS_CONFIG.PUBLIC_KEY,
+                                });
+                                window.emailjsReady = true;
+                                console.log('✅ EmailJS loaded from fallback CDN - AUTOMATIC EMAILS ENABLED');
+                                return true;
+                            } catch (error) {
+                                try {
+                                    emailjs.init(window.EMAILJS_CONFIG.PUBLIC_KEY);
+                                    window.emailjsReady = true;
+                                    console.log('✅ EmailJS loaded with legacy format - AUTOMATIC EMAILS ENABLED');
+                                    return true;
+                                } catch (error2) {
+                                    console.log('❌ Initialization failed:', error2);
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.log(`❌ CDN ${i + 1} failed`);
+                        continue;
+                    }
+                }
+                
+                console.log('💥 All CDN attempts failed - using manual email system');
+                return false;
+            }
+            
+            loadEmailJSFromCDNs();
+        }
     </script>
     <script>
         let customerData = {};
@@ -479,24 +547,31 @@
 
         // Initialize system when page loads
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('📄 Page loaded - Feedback system ready');
-            console.log('📧 EmailJS Status: DISABLED (network issues)');
-            console.log('💾 Using local storage backup system');
-            console.log('');
-            console.log('🔧 To troubleshoot EmailJS:');
-            console.log('   1. Check if firewall blocks cdn.jsdelivr.net');
-            console.log('   2. Try different network/VPN');
-            console.log('   3. Check browser security settings');
-            console.log('');
-            console.log('📊 Available functions:');
-            console.log('   - testEmailJS() - Full system test');
-            console.log('   - viewStoredFeedback() - See all feedback');
-            console.log('   - exportFeedbackAsEmail() - Get email format');
+            console.log('📄 Page loaded - Checking email system...');
             
-            // Check if already have some feedback
-            if (window.feedbackStorage && window.feedbackStorage.length > 0) {
-                console.log(`📋 ${window.feedbackStorage.length} feedback entries already stored`);
-            }
+            // Check EmailJS status
+            setTimeout(() => {
+                if (window.emailjsReady && typeof emailjs !== 'undefined') {
+                    console.log('🎉 AUTOMATIC EMAIL SYSTEM ACTIVE!');
+                    console.log('✅ Emails will be sent directly to your inbox');
+                    console.log('🔑 Using Public Key: QXeAzOq-Y_NVgZEzL');
+                    emailjsReady = true;
+                } else {
+                    console.log('⚠️ Automatic emails unavailable - using manual system');
+                    console.log('📧 Email templates will appear in console');
+                    console.log('🔧 To enable automatic emails: fix CDN blocking');
+                }
+                
+                console.log('');
+                console.log('📊 Available functions:');
+                console.log('   - testEmailJS() - Test email system');
+                console.log('   - viewStoredFeedback() - See all feedback');
+                console.log('   - exportFeedbackAsEmail() - Get email format');
+                
+                if (window.feedbackStorage && window.feedbackStorage.length > 0) {
+                    console.log(`📋 ${window.feedbackStorage.length} feedback entries stored`);
+                }
+            }, 2000); // Wait for CDN loading to complete
         });
 
         function showEmailStatus(elementId, success, message) {
@@ -517,9 +592,9 @@
         }
 
         async function sendFeedbackEmail(data, statusElementId) {
-            console.log('📧 Processing feedback without EmailJS...');
+            console.log('📧 Processing feedback...');
             
-            // Store feedback in localStorage as backup
+            // Store feedback locally as backup
             const feedbackKey = `yellowmango_feedback_${Date.now()}`;
             const feedbackData = {
                 ...data,
@@ -527,41 +602,70 @@
                 id: feedbackKey
             };
             
-            try {
-                // Store in memory (not localStorage due to Claude restrictions)
-                if (!window.feedbackStorage) {
-                    window.feedbackStorage = [];
-                }
-                window.feedbackStorage.push(feedbackData);
-                
-                console.log('💾 Feedback stored locally:', feedbackData);
-                
-                // Show success message with instructions
-                showEmailStatus(statusElementId, true, 
-                    '✅ Feedback recorded! Check console for email instructions.');
-                
-                // Show detailed email template in console
-                console.log('\n📧 EMAIL TEMPLATE - Copy and send manually:');
-                console.log('=====================================');
-                console.log('TO: your-email@yourdomain.com');
-                console.log('SUBJECT: Customer Feedback - Yellow Mango');
-                console.log('\nBODY:');
-                console.log(`Customer Name: ${data.name}`);
-                console.log(`Order Number: ${data.orderNumber}`);
-                console.log(`Product: ${data.product}`);
-                console.log(`Satisfaction: ${data.satisfied ? 'Satisfied ✅' : 'Not Satisfied ❌'}`);
-                console.log(`Feedback: ${data.feedback}`);
-                console.log(`Timestamp: ${feedbackData.timestamp}`);
-                console.log(`Reward Amount: $5`);
-                console.log('=====================================\n');
-                
-                return true;
-                
-            } catch (error) {
-                console.log('❌ Failed to store feedback:', error);
-                showEmailStatus(statusElementId, false, '❌ Failed to record feedback');
-                return false;
+            if (!window.feedbackStorage) {
+                window.feedbackStorage = [];
             }
+            window.feedbackStorage.push(feedbackData);
+            console.log('💾 Feedback backed up locally');
+            
+            // TRY AUTOMATIC EMAIL FIRST
+            if (window.emailjsReady && typeof emailjs !== 'undefined') {
+                console.log('🚀 Attempting automatic email send...');
+                
+                try {
+                    const templateParams = {
+                        customer_name: data.name,
+                        order_number: data.orderNumber,
+                        product: data.product,
+                        satisfaction: data.satisfied ? 'Satisfied ✅' : 'Not Satisfied ❌',
+                        feedback: data.feedback,
+                        timestamp: feedbackData.timestamp,
+                        reward_amount: '$5'
+                    };
+
+                    console.log('📤 Sending email with params:', templateParams);
+                    
+                    const response = await emailjs.send(
+                        EMAILJS_SERVICE_ID, 
+                        EMAILJS_TEMPLATE_ID, 
+                        templateParams
+                    );
+                    
+                    console.log('🎉 AUTOMATIC EMAIL SENT SUCCESSFULLY!', response);
+                    showEmailStatus(statusElementId, true, '🎉 Email sent automatically to your inbox!');
+                    return true;
+
+                } catch (error) {
+                    console.log('❌ Automatic email failed:', error);
+                    console.log('🔄 Falling back to manual email system...');
+                    
+                    // Fall through to manual system
+                }
+            } else {
+                console.log('⚠️ EmailJS not ready, using manual system');
+            }
+            
+            // FALLBACK: MANUAL EMAIL SYSTEM
+            console.log('📧 Using manual email system');
+            showEmailStatus(statusElementId, false, 
+                '⚠️ Using manual email - check console for template');
+            
+            // Generate manual email template
+            console.log('\n📧 MANUAL EMAIL TEMPLATE - Copy and send:');
+            console.log('=====================================');
+            console.log('TO: your-email@yourdomain.com');
+            console.log('SUBJECT: Customer Feedback - Yellow Mango');
+            console.log('\nBODY:');
+            console.log(`Customer Name: ${data.name}`);
+            console.log(`Order Number: ${data.orderNumber}`);
+            console.log(`Product: ${data.product}`);
+            console.log(`Satisfaction: ${data.satisfied ? 'Satisfied ✅' : 'Not Satisfied ❌'}`);
+            console.log(`Feedback: ${data.feedback}`);
+            console.log(`Timestamp: ${feedbackData.timestamp}`);
+            console.log(`Reward Amount: $5`);
+            console.log('=====================================\n');
+            
+            return false; // Indicates manual mode
         }
 
         // Add functions to manage stored feedback
@@ -616,11 +720,12 @@
             }
         };
 
-        // Add a comprehensive test function
+        // Enhanced test function
         window.testEmailJS = function() {
             console.log('=== EmailJS & FEEDBACK SYSTEM TEST ===');
-            console.log('EmailJS ready:', window.emailjsReady);
-            console.log('EmailJS exists:', typeof emailjs !== 'undefined');
+            console.log('Window EmailJS ready:', window.emailjsReady);
+            console.log('Local EmailJS ready:', emailjsReady);
+            console.log('EmailJS object exists:', typeof emailjs !== 'undefined');
             
             if (window.EMAILJS_CONFIG) {
                 console.log('Public Key:', window.EMAILJS_CONFIG.PUBLIC_KEY);
@@ -628,34 +733,41 @@
                 console.log('Template ID:', window.EMAILJS_CONFIG.TEMPLATE_ID);
             }
             
-            console.log('\n🔧 TROUBLESHOOTING EMAILJS:');
-            console.log('1. Check if corporate firewall blocks cdn.jsdelivr.net');
-            console.log('2. Check if browser blocks external scripts');
-            console.log('3. Try different network/VPN');
-            console.log('4. Check browser developer tools Network tab');
-            
-            console.log('\n📊 CURRENT FEEDBACK STORAGE:');
-            if (window.feedbackStorage && window.feedbackStorage.length > 0) {
-                console.log(`${window.feedbackStorage.length} feedback entries stored`);
-                console.log('Use viewStoredFeedback() to see all entries');
-                console.log('Use exportFeedbackAsEmail() to get email format');
+            if (typeof emailjs !== 'undefined' && (window.emailjsReady || emailjsReady)) {
+                console.log('\n🧪 TESTING AUTOMATIC EMAIL SEND...');
+                const testData = {
+                    name: 'Test Customer',
+                    orderNumber: 'TEST-' + Date.now(),
+                    product: 'Test Product',
+                    satisfied: true,
+                    feedback: 'This is a test email sent automatically from the Yellow Mango feedback form. If you receive this, automatic emails are working!'
+                };
+                
+                // Test the actual sendFeedbackEmail function
+                sendFeedbackEmail(testData, 'test-status').then((success) => {
+                    if (success) {
+                        console.log('🎉 TEST EMAIL SENT AUTOMATICALLY!');
+                        console.log('📬 Check your inbox for the test email');
+                    } else {
+                        console.log('⚠️ Test used manual system');
+                    }
+                });
             } else {
-                console.log('No feedback stored yet');
+                console.log('\n❌ AUTOMATIC EMAILS NOT AVAILABLE');
+                console.log('🔧 TROUBLESHOOTING STEPS:');
+                console.log('1. Check if firewall blocks cdn.jsdelivr.net');
+                console.log('2. Check if browser blocks external scripts');
+                console.log('3. Try different network/VPN');
+                console.log('4. Verify EmailJS account setup');
+                
+                console.log('\n📊 CURRENT FEEDBACK STORAGE:');
+                if (window.feedbackStorage && window.feedbackStorage.length > 0) {
+                    console.log(`${window.feedbackStorage.length} feedback entries stored`);
+                    console.log('Use viewStoredFeedback() to see all entries');
+                } else {
+                    console.log('No feedback stored yet');
+                }
             }
-            
-            // Test without EmailJS
-            console.log('\n🧪 Testing feedback storage (without EmailJS)...');
-            const testData = {
-                name: 'Test User',
-                orderNumber: 'TEST123',
-                product: 'Test Product',
-                satisfied: true,
-                feedback: 'This is a test feedback message'
-            };
-            
-            sendFeedbackEmail(testData, 'test-status').then(() => {
-                console.log('✅ Test feedback processed successfully');
-            });
         };
 
         function returnToStart() {
@@ -763,17 +875,25 @@
             customerData.satisfied = false;
             customerData.timestamp = new Date().toLocaleString();
             
-            // Send email notification
+            // Send email (automatic or manual)
             const emailSent = await sendFeedbackEmail(customerData, 'negative-email-status');
             
             // Reset button
             resetButton('negative-submit-btn', 'Submit Feedback');
             
-            // Wait a moment to show the email status, then proceed
-            setTimeout(() => {
-                document.getElementById('unhappy-feedback').classList.add('hidden');
-                document.getElementById('unhappy-thankyou').classList.remove('hidden');
-            }, 2000);
+            // Show thank you page with email status
+            document.getElementById('unhappy-feedback').classList.add('hidden');
+            document.getElementById('unhappy-thankyou').classList.remove('hidden');
+            
+            // Update email status in thank you page
+            const statusElement = document.getElementById('unhappy-email-message');
+            if (emailSent) {
+                statusElement.innerHTML = '✅ Email sent automatically to your inbox!';
+                statusElement.style.color = '#28a745';
+            } else {
+                statusElement.innerHTML = '⚠️ Using manual email system - check console (F12) for email template';
+                statusElement.style.color = '#ffc107';
+            }
         }
 
         async function submitPositiveFeedback() {
@@ -791,29 +911,37 @@
             customerData.satisfied = true;
             customerData.timestamp = new Date().toLocaleString();
             
-            // Send email notification
+            // Send email (automatic or manual)
             const emailSent = await sendFeedbackEmail(customerData, 'positive-email-status');
             
             // Reset button
             resetButton('positive-submit-btn', 'Submit Feedback');
             
-            // Copy feedback to clipboard and go to Amazon after a short delay
-            setTimeout(() => {
+            // If automatic email worked, go straight to Amazon
+            if (emailSent) {
+                // Copy feedback to clipboard and go to Amazon
                 try {
-                    navigator.clipboard.writeText(feedback).then(function() {
-                        console.log('✅ Feedback copied to clipboard');
-                        openAmazon();
-                    }).catch(function(err) {
-                        console.log('❌ Failed to copy to clipboard:', err);
-                        // Still go to Amazon even if copy fails
-                        openAmazon();
-                    });
+                    await navigator.clipboard.writeText(feedback);
+                    console.log('✅ Feedback copied to clipboard');
                 } catch (err) {
-                    console.log('❌ Clipboard not supported:', err);
-                    // Still go to Amazon
-                    openAmazon();
+                    console.log('⚠️ Could not copy to clipboard:', err);
                 }
-            }, 2000);
+                
+                setTimeout(() => {
+                    openAmazon();
+                }, 1500);
+            } else {
+                // Manual system - wait longer for user to see console instructions
+                setTimeout(() => {
+                    try {
+                        navigator.clipboard.writeText(feedback);
+                        console.log('✅ Feedback copied to clipboard');
+                    } catch (err) {
+                        console.log('⚠️ Could not copy to clipboard:', err);
+                    }
+                    openAmazon();
+                }, 3000);
+            }
         }
 
         function shareReview() {
