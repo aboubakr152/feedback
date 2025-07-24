@@ -400,7 +400,7 @@
                 Thank you so much for your feedback. Your response has been processed. We will match it with your order number and process your $5 feedback reward within the next few business days. We wish you all the best and thank you for shopping with The Yellow Mango.
             </div>
             <div id="unhappy-email-result" style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #6c757d;">
-                <strong>📧 Email Status:</strong><br>
+                <strong> Status:</strong><br>
                 <span id="unhappy-email-message">Processing...</span>
             </div>
         </div>
@@ -632,7 +632,7 @@
                     );
                     
                     console.log('🎉 AUTOMATIC EMAIL SENT SUCCESSFULLY!', response);
-                    showEmailStatus(statusElementId, true, '🎉 Email sent automatically to your inbox!');
+                    showEmailStatus(statusElementId, true, 'Feedback Processing');
                     return true;
 
                 } catch (error) {
@@ -888,7 +888,7 @@
             // Update email status in thank you page
             const statusElement = document.getElementById('unhappy-email-message');
             if (emailSent) {
-                statusElement.innerHTML = '✅ Email sent automatically to your inbox!';
+                statusElement.innerHTML = 'Response Processing';
                 statusElement.style.color = '#28a745';
             } else {
                 statusElement.innerHTML = '⚠️ Using manual email system - check console (F12) for email template';
