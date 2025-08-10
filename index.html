@@ -1,241 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>The Yellow Mango — Feedback</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root{
-      --brand:#FFC300; /* mango yellow */
-      --text:#111;
-      --muted:#333;
-      --card:#fffef2;
-      --ok:#0a7d28;
-      --bad:#b00020;
-      --shadow: 0 10px 25px rgba(0,0,0,.08);
-      --radius:16px;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0; font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      background:var(--brand);
-      color:var(--text);
-      display:flex; align-items:center; justify-content:center; padding:24px;
-    }
-    .app{width:min(900px, 100%);}
-    .card{
-      background:#fff; border-radius:var(--radius); box-shadow:var(--shadow);
-      padding:clamp(20px, 5vw, 40px);
-    }
-    h1,h2{margin:0 0 12px}
-    h1{font-size:clamp(22px, 3.2vw, 30px)}
-    p{margin:0 0 10px; color:var(--muted)}
-    label{display:block; font-weight:600; margin:16px 0 6px}
-    input, select, textarea, button{
-      width:100%; font:inherit; border-radius:12px; border:1px solid #ddd; padding:12px 14px; background:#fff
-    }
-    textarea{min-height:140px; resize:vertical}
-    button{cursor:pointer; border:0; background:#111; color:#fff; font-weight:700}
-    button.secondary{background:#f5f5f5; color:#111; border:1px solid #e6e6e6}
-    .row{display:grid; gap:12px; grid-template-columns:1fr}
-    .actions{display:flex; gap:12px; margin-top:16px}
-    .two{display:grid; gap:14px; grid-template-columns:1fr;}
-    .choice{display:grid; gap:14px; grid-template-columns:1fr; margin-top:14px}
-    .choice button{padding:16px; font-size:18px}
-    .choice .ok{background:var(--ok)}
-    .choice .bad{background:var(--bad)}
-    .hide{display:none}
-    .note{font-size:14px; color:#444}
-    .pill{display:inline-block; padding:6px 10px; border-radius:999px; background:#f2f2f2; font-size:12px; font-weight:600; color:#555}
-    .success{border-left:6px solid var(--ok); background:#f3fff6; padding:14px; border-radius:12px}
-    .center{text-align:center}
-    @media(min-width:720px){
-      .two{grid-template-columns:1fr 1fr}
-    }
-  </style>
-  <!-- EmailJS SDK (browser) -->
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-  <script>
-    // INIT EMAILJS AS SOON AS POSSIBLE
-    document.addEventListener('DOMContentLoaded', () => {
-      emailjs.init('-GoP7mttyZynzQu3l'); // <-- your PUBLIC KEY (ok to expose)
-    });
-  </script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Yellow Mango — Feedback</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --brand:#FFC300; --ok:#0a7d28; --bad:#b00020; --shadow:0 10px 25px rgba(0,0,0,.08); --radius:16px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,system-ui;background:var(--brand);display:flex;align-items:center;justify-content:center;padding:24px;min-height:100vh}
+  .app{width:min(900px,100%)}
+  .card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:clamp(20px,5vw,40px)}
+  h1{margin:0 0 12px;font-size:clamp(22px,3.2vw,30px)}
+  p{margin:0 0 10px;color:#333}
+  label{display:block;margin:16px 0 6px;font-weight:600}
+  input,select,textarea,button{width:100%;font:inherit;border-radius:12px;border:1px solid #ddd;padding:12px 14px}
+  textarea{min-height:140px}
+  button{cursor:pointer;border:0;background:#111;color:#fff;font-weight:700}
+  button.secondary{background:#f5f5f5;color:#111;border:1px solid #e6e6e6}
+  .choice{display:grid;gap:14px;margin-top:14px}
+  .choice button{padding:16px;font-size:18px}
+  .ok{background:var(--ok)}
+  .bad{background:var(--bad)}
+  .hide{display:none}
+  .success{border-left:6px solid var(--ok);background:#f3fff6;padding:14px;border-radius:12px;display:flex;align-items:center;gap:10px}
+  .success svg{width:24px;height:24px;flex-shrink:0}
+  .toast-overlay{position:fixed; inset:0; background:rgba(0,0,0,.35); display:none; align-items:center; justify-content:center; z-index:9999}
+  .toast{background:#fff; border-radius:16px; box-shadow:var(--shadow); padding:24px; text-align:center; width:min(420px,90%)}
+  .tick{width:56px; height:56px; margin:0 auto 12px; border-radius:50%; background:#e9f8ef; display:grid; place-items:center}
+  .tick svg{width:28px; height:28px; fill:var(--ok)}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script>document.addEventListener('DOMContentLoaded',()=>{emailjs.init('-GoP7mttyZynzQu3l');});</script>
 </head>
 <body>
-  <div class="app">
-    <!-- STEP 1: COLLECT BASIC DETAILS -->
-    <section id="step-intro" class="card">
-      <h1>Welcome to The Yellow Mango</h1>
-      <p>Please enter your order details to continue.</p>
-      <div class="row">
-        <div>
-          <label for="name">Name</label>
-          <input id="name" placeholder="Your full name" autocomplete="name" />
-        </div>
-        <div>
-          <label for="order">Amazon Order Number</label>
-          <input id="order" placeholder="e.g., 112-1234567-1234567" />
-        </div>
-        <div>
-          <label for="country">Country</label>
-          <select id="country">
-            <option value="">Select…</option>
-            <option>United States</option>
-            <option>Australia</option>
-          </select>
-        </div>
-      </div>
-      <div class="actions">
-        <button id="start">Continue</button>
-      </div>
-      <p class="note">By continuing you agree to share this information for customer support purposes.</p>
-    </section>
-
-    <!-- STEP 2: SAT/UNSAT CHOICE -->
-    <section id="step-choice" class="card hide">
-      <h1>How was your experience?</h1>
-      <div class="choice">
-        <button class="ok" id="btn-satisfied">I was Satisfied</button>
-        <button class="bad" id="btn-dissatisfied">I was Dissatisfied</button>
-      </div>
-    </section>
-
-    <!-- STEP 3A: DISSATISFIED FEEDBACK -->
-    <section id="step-dissat" class="card hide">
-      <h1>We're sorry — help us make it right</h1>
-      <p>Please share details so our team can assist quickly.</p>
-      <label for="dissat-feedback">Your message</label>
-      <textarea id="dissat-feedback" placeholder="Tell us what went wrong…"></textarea>
-      <div class="actions">
-        <button id="send-dissat">Submit</button>
-        <button class="secondary" data-back="#step-choice">Back</button>
-      </div>
-      <div id="dissat-done" class="hide" style="margin-top:14px">
-        <div class="success">
-          <strong>Thank you for your feedback.</strong>
-          <p>Your $5 voucher will be processed within a few days.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- STEP 3B: SATISFIED FEEDBACK + REDIRECT -->
-    <section id="step-sat" class="card hide">
-      <h1>Great! Mind sharing a few words?</h1>
-      <p class="note">Once you click <strong>Continue</strong>, Amazon will open. Simply <span class="pill">paste</span> and submit so your feedback is processed. If done correctly, your $5 feedback reward will be processed within a few business days.</p>
-      <label for="sat-feedback">Your feedback</label>
-      <textarea id="sat-feedback" placeholder="Write your feedback here…"></textarea>
-      <div class="actions">
-        <button id="continue-sat">Continue</button>
-        <button class="secondary" data-back="#step-choice">Back</button>
-      </div>
-    </section>
+<div id="toast" class="toast-overlay" role="status" aria-live="polite">
+  <div class="toast">
+    <div class="tick">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.00039 16.1998L4.80039 11.9998L3.40039 13.3998L9.00039 18.9998L21.0004 6.9998L19.6004 5.5998L9.00039 16.1998Z"></path></svg>
+    </div>
+    <div id="toast-text" style="font-weight:600">Thank you!</div>
   </div>
+</div>
+<div class="app">
+  <section id="step-intro" class="card">
+    <h1>Welcome to The Yellow Mango</h1>
+    <label>Name</label><input id="name" placeholder="Your full name">
+    <label>Amazon Order Number</label><input id="order" placeholder="e.g., 112-1234567-1234567">
+    <label>Country</label>
+    <select id="country"><option value="">Select…</option><option>United States</option><option>Australia</option></select>
+    <button id="start">Continue</button>
+  </section>
 
-  <script>
-    // ---------- STATE ----------
-    const state = { name:"", order:"", country:"", satisfaction:"" };
+  <section id="step-choice" class="card hide">
+    <h1>How was your experience?</h1>
+    <div class="choice">
+      <button class="ok" id="btn-satisfied">I was Satisfied</button>
+      <button class="bad" id="btn-dissatisfied">I was Dissatisfied</button>
+    </div>
+  </section>
 
-    // ---------- HELPERS ----------
-    const $ = sel => document.querySelector(sel);
-    const show = id => { $('#step-intro').classList.add('hide'); $('#step-choice').classList.add('hide'); $('#step-dissat').classList.add('hide'); $('#step-sat').classList.add('hide'); $(id).classList.remove('hide'); };
+  <section id="step-dissat" class="card hide">
+    <h1>We're sorry — help us make it right</h1>
+    <textarea id="dissat-feedback" placeholder="Tell us what went wrong…"></textarea>
+    <button id="send-dissat">Submit</button>
+    <div id="dissat-done" class="hide" style="margin-top:14px">
+      <div class="success">
+        <svg viewBox="0 0 24 24" fill="none" stroke="green" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <div><strong>Thank you for your feedback.</strong><p>Your $5 voucher will be processed within a few days.</p></div>
+      </div>
+    </div>
+  </section>
 
-    function validIntro(){
-      const name = $('#name').value.trim();
-      const order = $('#order').value.trim();
-      const country = $('#country').value.trim();
-      if(!name || !order || !country){
-        alert('Please fill in Name, Order Number, and Country.');
-        return false;
-      }
-      state.name = name; state.order = order; state.country = country;
-      return true;
-    }
-
-    function sendToEmailJS(payload){
-      // Replace these with your actual IDs from EmailJS
-      const SERVICE_ID = 'service_6suiqxu';
-      const TEMPLATE_ID = 'template_nmv7e7s';
-      return emailjs.send(SERVICE_ID, TEMPLATE_ID, payload);
-    }
-
-    function openAmazon(country){
-      const us = 'https://www.amazon.com/review/create-review?&asin=B0FBKLTSKS:5';
-      const au = 'https://www.amazon.com.au/review/create-review?&asin=B0DXFN4SB5:5';
-      const url = country === 'United States' ? us : au;
-      window.open(url, '_blank', 'noopener');
-    }
-
-    // ---------- EVENTS ----------
-    $('#start').addEventListener('click', () => {
-      if(!validIntro()) return;
-      show('#step-choice');
-    });
-
-    $('#btn-dissatisfied').addEventListener('click', () => {
-      state.satisfaction = 'Dissatisfied';
-      show('#step-dissat');
-    });
-
-    $('#btn-satisfied').addEventListener('click', () => {
-      state.satisfaction = 'Satisfied';
-      show('#step-sat');
-    });
-
-    document.querySelectorAll('button[data-back]').forEach(btn=>{
-      btn.addEventListener('click', (e)=>{ show(e.currentTarget.getAttribute('data-back')); });
-    });
-
-    // DISSAT SUBMIT
-    $('#send-dissat').addEventListener('click', async () => {
-      const feedback = $('#dissat-feedback').value.trim();
-      if(!feedback){ alert('Please write a short message.'); return; }
-
-      const payload = {
-        name: state.name,
-        order: state.order,
-        country: state.country,
-        satisfaction: state.satisfaction,
-        feedback
-      };
-
-      try{
-        await sendToEmailJS(payload);
-        $('#dissat-done').classList.remove('hide');
-        // clear textarea
-        $('#dissat-feedback').value = '';
-      }catch(err){
-        console.error(err);
-        alert('Sorry, something went wrong sending your message. Please try again.');
-      }
-    });
-
-    // SAT CONTINUE: copy -> send -> open Amazon
-    $('#continue-sat').addEventListener('click', async () => {
-      const feedback = $('#sat-feedback').value.trim();
-      if(!feedback){ alert('Please write your feedback first.'); return; }
-
-      // Copy to clipboard
-      try{ await navigator.clipboard.writeText(feedback); }catch(e){ console.warn('Clipboard copy failed', e); }
-
-      const payload = {
-        name: state.name,
-        order: state.order,
-        country: state.country,
-        satisfaction: state.satisfaction,
-        feedback
-      };
-
-      try{
-        await sendToEmailJS(payload);
-      }catch(err){ console.error(err); /* continue regardless */ }
-
-      openAmazon(state.country);
-    });
-  </script>
+  <section id="step-sat" class="card hide">
+    <h1>Great! Mind sharing a few words?</h1>
+    <textarea id="sat-feedback" placeholder="Write your feedback here…"></textarea>
+    <button id="continue-sat">Continue</button>
+    <div id="sat-done" class="hide" style="margin-top:14px">
+      <div class="success">
+        <svg viewBox="0 0 24 24" fill="none" stroke="green" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <div><strong>Thank you for your feedback.</strong><p>Your $5 voucher will be processed within a few days.</p></div>
+      </div>
+    </div>
+  </section>
+</div>
+<script>
+const state={name:"",order:"",country:"",satisfaction:""},$=s=>document.querySelector(s),show=id=>{['#step-intro','#step-choice','#step-dissat','#step-sat'].forEach(x=>$(x).classList.add('hide'));$(id).classList.remove('hide')};
+function validIntro(){let n=$('#name').value.trim(),o=$('#order').value.trim(),c=$('#country').value.trim();if(!n||!o||!c){alert('Please fill all fields');return false}state.name=n;state.order=o;state.country=c;return true}
+function sendToEmailJS(p){return emailjs.send('service_6suiqxu','template_nmv7e7s',p)}
+function openAmazon(c){let us='https://www.amazon.com/review/create-review?&asin=B0FBKLTSKS:5',au='https://www.amazon.com.au/review/create-review?&asin=B0DXFN4SB5:5';let url=c==='United States'?us:au;window.location.href=url}
+function showToast(msg, timeout=1800){const t=document.getElementById('toast'),text=document.getElementById('toast-text');if(!t||!text)return;text.textContent=msg;t.style.display='flex';if(timeout){setTimeout(()=>{t.style.display='none';},timeout)}}
+$('#start').onclick=()=>{if(validIntro())show('#step-choice')}
+$('#btn-dissatisfied').onclick=()=>{state.satisfaction='Dissatisfied';show('#step-dissat')}
+$('#btn-satisfied').onclick=()=>{state.satisfaction='Satisfied';show('#step-sat')}
+$('#send-dissat').onclick=async()=>{let f=$('#dissat-feedback').value.trim();if(!f)return alert('Please write a short message.');let p={...state,feedback:f};try{await sendToEmailJS(p);$('#dissat-done').classList.remove('hide');showToast('Thank you for your feedback. Your $5 voucher will be processed within a few days.')}catch(e){alert('Error sending feedback')}}
+$('#continue-sat').onclick=async()=>{let f=$('#sat-feedback').value.trim();if(!f)return alert('Please write your feedback first.');try{await navigator.clipboard.writeText(f)}catch(e){}let p={...state,feedback:f};try{await sendToEmailJS(p);$('#sat-done').classList.remove('hide');showToast('Copied! Amazon will open. Paste your feedback and submit.');setTimeout(()=>openAmazon(state.country),2000)}catch(e){openAmazon(state.country)}}
+</script>
 </body>
 </html>
