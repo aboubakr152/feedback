@@ -1,973 +1,241 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Yellow Mango - Customer Feedback</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Arial', sans-serif;
-            background: #F1C40F;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-            padding: 40px;
-            max-width: 500px;
-            width: 100%;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 5px;
-            background: #F39C12;
-        }
-
-        .logo {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #2C3E50;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .header-text {
-            font-size: 1.2rem;
-            color: #333;
-            margin-bottom: 15px;
-            font-weight: 600;
-        }
-
-        .subheader-text {
-            font-size: 1rem;
-            color: #555;
-            margin-bottom: 30px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #333;
-        }
-
-        input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        input[type="text"]:focus {
-            outline: none;
-            border-color: #F7DC6F;
-            box-shadow: 0 0 10px rgba(247, 220, 111, 0.5);
-        }
-
-        .product-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        .product-option {
-            border: 2px solid #ddd;
-            border-radius: 15px;
-            padding: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: white;
-            text-align: center;
-        }
-
-        .product-option:hover {
-            border-color: #F39C12;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.2);
-        }
-
-        .product-option.selected {
-            border-color: #F39C12;
-            background: #FEF9E7;
-            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.3);
-        }
-
-        .product-name {
-            font-weight: 600;
-            color: #2C3E50;
-            font-size: 1.2rem;
-            margin-bottom: 5px;
-        }
-
-        .product-price {
-            font-size: 1.1rem;
-            color: #F39C12;
-            font-weight: bold;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 15px;
-            margin: 30px 0;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 15px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .btn-happy {
-            background: #3498DB;
-            color: white;
-        }
-
-        .btn-happy:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
-        }
-
-        .btn-unhappy {
-            background: #E74C3C;
-            color: white;
-        }
-
-        .btn-unhappy:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
-        }
-
-        .btn-primary {
-            background: #F39C12;
-            color: white;
-            width: 100%;
-            margin-top: 20px;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.4);
-        }
-
-        .btn-amazon {
-            background: #FF9900;
-            color: white;
-            width: 100%;
-            margin-top: 20px;
-        }
-
-        .btn-amazon:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 153, 0, 0.4);
-        }
-
-        .btn-return {
-            background: #95A5A6;
-            color: white;
-            padding: 10px 20px;
-            font-size: 0.9rem;
-            margin-top: 15px;
-            width: 100%;
-        }
-
-        .btn-return:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(149, 165, 166, 0.4);
-        }
-
-        textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            font-size: 1rem;
-            resize: vertical;
-            min-height: 100px;
-            font-family: Arial, sans-serif;
-        }
-
-        textarea:focus {
-            outline: none;
-            border-color: #F7DC6F;
-            box-shadow: 0 0 10px rgba(247, 220, 111, 0.5);
-        }
-
-        .message {
-            margin: 20px 0;
-            padding: 20px;
-            border-radius: 10px;
-            font-size: 1rem;
-            line-height: 1.6;
-        }
-
-        .message-success {
-            background: #EBF3FD;
-            color: #3498DB;
-            border-left: 4px solid #3498DB;
-        }
-
-        .message-sorry {
-            background: #FDEDEC;
-            color: #E74C3C;
-            border-left: 4px solid #E74C3C;
-        }
-
-        .stars {
-            font-size: 3rem;
-            color: #F7DC6F;
-            margin: 20px 0;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .flash-message {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #3498DB;
-            color: white;
-            padding: 20px 40px;
-            border-radius: 10px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            z-index: 1000;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            animation: flashIn 0.5s ease-out;
-        }
-
-        @keyframes flashIn {
-            from {
-                opacity: 0;
-                transform: translate(-50%, -50%) scale(0.8);
-            }
-            to {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(1);
-            }
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 10px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .email-status {
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            font-size: 0.9rem;
-        }
-
-        .email-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .email-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Yellow Mango — Feedback</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --brand:#FFC300; /* mango yellow */
+      --text:#111;
+      --muted:#333;
+      --card:#fffef2;
+      --ok:#0a7d28;
+      --bad:#b00020;
+      --shadow: 0 10px 25px rgba(0,0,0,.08);
+      --radius:16px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background:var(--brand);
+      color:var(--text);
+      display:flex; align-items:center; justify-content:center; padding:24px;
+    }
+    .app{width:min(900px, 100%);}
+    .card{
+      background:#fff; border-radius:var(--radius); box-shadow:var(--shadow);
+      padding:clamp(20px, 5vw, 40px);
+    }
+    h1,h2{margin:0 0 12px}
+    h1{font-size:clamp(22px, 3.2vw, 30px)}
+    p{margin:0 0 10px; color:var(--muted)}
+    label{display:block; font-weight:600; margin:16px 0 6px}
+    input, select, textarea, button{
+      width:100%; font:inherit; border-radius:12px; border:1px solid #ddd; padding:12px 14px; background:#fff
+    }
+    textarea{min-height:140px; resize:vertical}
+    button{cursor:pointer; border:0; background:#111; color:#fff; font-weight:700}
+    button.secondary{background:#f5f5f5; color:#111; border:1px solid #e6e6e6}
+    .row{display:grid; gap:12px; grid-template-columns:1fr}
+    .actions{display:flex; gap:12px; margin-top:16px}
+    .two{display:grid; gap:14px; grid-template-columns:1fr;}
+    .choice{display:grid; gap:14px; grid-template-columns:1fr; margin-top:14px}
+    .choice button{padding:16px; font-size:18px}
+    .choice .ok{background:var(--ok)}
+    .choice .bad{background:var(--bad)}
+    .hide{display:none}
+    .note{font-size:14px; color:#444}
+    .pill{display:inline-block; padding:6px 10px; border-radius:999px; background:#f2f2f2; font-size:12px; font-weight:600; color:#555}
+    .success{border-left:6px solid var(--ok); background:#f3fff6; padding:14px; border-radius:12px}
+    .center{text-align:center}
+    @media(min-width:720px){
+      .two{grid-template-columns:1fr 1fr}
+    }
+  </style>
+  <!-- EmailJS SDK (browser) -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script>
+    // INIT EMAILJS AS SOON AS POSSIBLE
+    document.addEventListener('DOMContentLoaded', () => {
+      emailjs.init('-GoP7mttyZynzQu3l'); // <-- your PUBLIC KEY (ok to expose)
+    });
+  </script>
 </head>
 <body>
-    <div class="container">
-        <div class="logo">The Yellow Mango</div>
-        
-        <!-- Initial Form -->
-        <div id="initial-form">
-            <div class="header-text">This will only take about 30 seconds we promise</div>
-            <div class="subheader-text">Please provide accurate details so we can locate your Amazon order</div>
-            
-            <div class="form-group">
-                <label for="customer-name">Your Name:</label>
-                <input type="text" id="customer-name" placeholder="Enter your full name">
-            </div>
-            
-            <div class="form-group">
-                <label for="order-number">Order Number:</label>
-                <input type="text" id="order-number" placeholder="Enter your Amazon order number">
-            </div>
-            
-            <button class="btn btn-primary" onclick="proceedToProductSelection()">Continue</button>
+  <div class="app">
+    <!-- STEP 1: COLLECT BASIC DETAILS -->
+    <section id="step-intro" class="card">
+      <h1>Welcome to The Yellow Mango</h1>
+      <p>Please enter your order details to continue.</p>
+      <div class="row">
+        <div>
+          <label for="name">Name</label>
+          <input id="name" placeholder="Your full name" autocomplete="name" />
         </div>
-
-        <!-- Product Selection -->
-        <div id="product-selection" class="hidden">
-            <div class="header-text">Select the item you purchased</div>
-            <div class="subheader-text">Please choose the product you ordered from us</div>
-            
-            <div class="product-grid">
-                <div class="product-option" onclick="selectProduct('portable-blender')">
-                    <div class="product-name">Portable Blender</div>
-                    <div class="product-price">$21.95</div>
-                </div>
-                
-                <div class="product-option" onclick="selectProduct('shaker-blender')">
-                    <div class="product-name">Shaker Blender</div>
-                    <div class="product-price">$19.95</div>
-                </div>
-                
-                <div class="product-option" onclick="selectProduct('heated-pad-mug')">
-                    <div class="product-name">Mug & Heat Pad</div>
-                    <div class="product-price">$24.95</div>
-                </div>
-            </div>
-            
-            <button class="btn btn-primary" onclick="proceedToSatisfaction()" id="continue-btn" style="opacity: 0.5; cursor: not-allowed;" disabled>Continue</button>
-            <button class="btn btn-return" onclick="returnToStart()">← Return to Start</button>
+        <div>
+          <label for="order">Amazon Order Number</label>
+          <input id="order" placeholder="e.g., 112-1234567-1234567" />
         </div>
-
-        <!-- Satisfaction Question -->
-        <div id="satisfaction-question" class="hidden">
-            <div class="header-text">Were you happy with your order?</div>
-            <div class="button-group">
-                <button class="btn btn-happy" onclick="handleHappy()">Yes I am happy</button>
-                <button class="btn btn-unhappy" onclick="handleUnhappy()">No I am not satisfied</button>
-            </div>
+        <div>
+          <label for="country">Country</label>
+          <select id="country">
+            <option value="">Select…</option>
+            <option>United States</option>
+            <option>Australia</option>
+          </select>
         </div>
+      </div>
+      <div class="actions">
+        <button id="start">Continue</button>
+      </div>
+      <p class="note">By continuing you agree to share this information for customer support purposes.</p>
+    </section>
 
-        <!-- Unhappy Path -->
-        <div id="unhappy-feedback" class="hidden">
-            <div class="message message-sorry">
-                We are so sorry we could not meet your expectations. Please provide feedback of what you didn't like specifically. Your feedback is very important to us as it genuinely helps us improve our products.
-            </div>
-            
-            <div class="form-group">
-                <label for="negative-feedback">What didn't you like?</label>
-                <textarea id="negative-feedback" placeholder="Please share your honest feedback..."></textarea>
-            </div>
-            
-            <button class="btn btn-primary" onclick="submitNegativeFeedback()" id="negative-submit-btn">Submit Feedback</button>
-            <button class="btn btn-return" onclick="returnToStart()">← Return to Start</button>
-            
-            <div id="negative-email-status"></div>
+    <!-- STEP 2: SAT/UNSAT CHOICE -->
+    <section id="step-choice" class="card hide">
+      <h1>How was your experience?</h1>
+      <div class="choice">
+        <button class="ok" id="btn-satisfied">I was Satisfied</button>
+        <button class="bad" id="btn-dissatisfied">I was Dissatisfied</button>
+      </div>
+    </section>
+
+    <!-- STEP 3A: DISSATISFIED FEEDBACK -->
+    <section id="step-dissat" class="card hide">
+      <h1>We're sorry — help us make it right</h1>
+      <p>Please share details so our team can assist quickly.</p>
+      <label for="dissat-feedback">Your message</label>
+      <textarea id="dissat-feedback" placeholder="Tell us what went wrong…"></textarea>
+      <div class="actions">
+        <button id="send-dissat">Submit</button>
+        <button class="secondary" data-back="#step-choice">Back</button>
+      </div>
+      <div id="dissat-done" class="hide" style="margin-top:14px">
+        <div class="success">
+          <strong>Thank you for your feedback.</strong>
+          <p>Your $5 voucher will be processed within a few days.</p>
         </div>
+      </div>
+    </section>
 
-        <!-- Unhappy Thank You -->
-        <div id="unhappy-thankyou" class="hidden">
-            <div class="message message-success">
-                Thank you so much for your feedback. Your response has been processed. We will match it with your order number and process your $5 feedback reward within the next few business days. We wish you all the best and thank you for shopping with The Yellow Mango.
-            </div>
-            <div id="unhappy-email-result" style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #6c757d;">
-                <strong> Status:</strong><br>
-                <span id="unhappy-email-message">Processing...</span>
-            </div>
-        </div>
+    <!-- STEP 3B: SATISFIED FEEDBACK + REDIRECT -->
+    <section id="step-sat" class="card hide">
+      <h1>Great! Mind sharing a few words?</h1>
+      <p class="note">Once you click <strong>Continue</strong>, Amazon will open. Simply <span class="pill">paste</span> and submit so your feedback is processed. If done correctly, your $5 feedback reward will be processed within a few business days.</p>
+      <label for="sat-feedback">Your feedback</label>
+      <textarea id="sat-feedback" placeholder="Write your feedback here…"></textarea>
+      <div class="actions">
+        <button id="continue-sat">Continue</button>
+        <button class="secondary" data-back="#step-choice">Back</button>
+      </div>
+    </section>
+  </div>
 
-        <!-- Happy Path -->
-        <div id="happy-feedback" class="hidden">
-            <div class="message message-success">
-                We are glad you are happy with the product you ordered! Please give us some feedback about what you liked.
-            </div>
-            
-            <div class="form-group">
-                <label for="positive-feedback">What did you like about your order?</label>
-                <textarea id="positive-feedback" placeholder="Tell us what you loved about your experience..."></textarea>
-            </div>
-            
-            <div class="subheader-text" style="margin-top: 15px; margin-bottom: 15px;">
-                Your feedback will be copied to your clipboard and the Amazon page will open. Simply paste in your text to leave your review and complete your feedback submission.
-            </div>
-            
-            <button class="btn btn-primary" onclick="submitPositiveFeedback()" id="positive-submit-btn">Submit Feedback</button>
-            
-            <div id="positive-email-status"></div>
-        </div>
+  <script>
+    // ---------- STATE ----------
+    const state = { name:"", order:"", country:"", satisfaction:"" };
 
-        <!-- Review Instructions -->
-        <div id="review-instructions" class="hidden">
-            <div class="message message-success">
-                Your text has been copied to your clipboard please share it as a review on amazon to complete your feedback
-            </div>
-            
-            <button class="btn btn-primary" onclick="shareReview()">Complete Your Feedback</button>
-        </div>
+    // ---------- HELPERS ----------
+    const $ = sel => document.querySelector(sel);
+    const show = id => { $('#step-intro').classList.add('hide'); $('#step-choice').classList.add('hide'); $('#step-dissat').classList.add('hide'); $('#step-sat').classList.add('hide'); $(id).classList.remove('hide'); };
 
-        <!-- Final Review Steps -->
-        <div id="final-steps" class="hidden">
-            <div class="stars">⭐⭐⭐⭐⭐</div>
-            <div class="message message-success">
-                Submit your review on amazon to complete your feedback
-            </div>
-            <button class="btn btn-amazon" onclick="openAmazon()">
-                Complete Feedback
-            </button>
-        </div>
-    </div>
+    function validIntro(){
+      const name = $('#name').value.trim();
+      const order = $('#order').value.trim();
+      const country = $('#country').value.trim();
+      if(!name || !order || !country){
+        alert('Please fill in Name, Order Number, and Country.');
+        return false;
+      }
+      state.name = name; state.order = order; state.country = country;
+      return true;
+    }
 
-    <!-- EmailJS with Automatic Loading & Fallback -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-    <script type="text/javascript">
-        // EmailJS configuration
-        window.EMAILJS_CONFIG = {
-            PUBLIC_KEY: 'QXeAzOq-Y_NVgZEzL',
-            SERVICE_ID: 'service_bua09v8',
-            TEMPLATE_ID: 'template_jm7g5bc'
-        };
-        
-        // Initialize ready flag
-        window.emailjsReady = false;
-        
-        // Try immediate initialization
-        if (typeof emailjs !== 'undefined') {
-            try {
-                emailjs.init({
-                    publicKey: 'QXeAzOq-Y_NVgZEzL',
-                });
-                window.emailjsReady = true;
-                console.log('✅ EmailJS loaded immediately - AUTOMATIC EMAILS ENABLED');
-            } catch (e) {
-                console.log('⚠️ Simple initialization failed, trying alternatives...');
-            }
-        }
-    </script>
-    
-    <!-- Fallback CDN Loading -->
-    <script type="text/javascript">
-        if (!window.emailjsReady) {
-            console.log('🔄 Loading EmailJS from alternative CDNs...');
-            
-            const CDN_URLS = [
-                'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js',
-                'https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js',
-                'https://unpkg.com/@emailjs/browser@4/dist/email.min.js',
-                'https://unpkg.com/emailjs-com@3/dist/email.min.js'
-            ];
-            
-            async function loadEmailJSFromCDNs() {
-                for (let i = 0; i < CDN_URLS.length; i++) {
-                    const url = CDN_URLS[i];
-                    console.log(`📡 Trying CDN ${i + 1}/${CDN_URLS.length}: ${url}`);
-                    
-                    try {
-                        await new Promise((resolve, reject) => {
-                            const script = document.createElement('script');
-                            script.src = url;
-                            script.onload = resolve;
-                            script.onerror = reject;
-                            document.head.appendChild(script);
-                        });
-                        
-                        await new Promise(resolve => setTimeout(resolve, 1000));
-                        
-                        if (typeof emailjs !== 'undefined') {
-                            try {
-                                emailjs.init({
-                                    publicKey: window.EMAILJS_CONFIG.PUBLIC_KEY,
-                                });
-                                window.emailjsReady = true;
-                                console.log('✅ EmailJS loaded from fallback CDN - AUTOMATIC EMAILS ENABLED');
-                                return true;
-                            } catch (error) {
-                                try {
-                                    emailjs.init(window.EMAILJS_CONFIG.PUBLIC_KEY);
-                                    window.emailjsReady = true;
-                                    console.log('✅ EmailJS loaded with legacy format - AUTOMATIC EMAILS ENABLED');
-                                    return true;
-                                } catch (error2) {
-                                    console.log('❌ Initialization failed:', error2);
-                                }
-                            }
-                        }
-                    } catch (error) {
-                        console.log(`❌ CDN ${i + 1} failed`);
-                        continue;
-                    }
-                }
-                
-                console.log('💥 All CDN attempts failed - using manual email system');
-                return false;
-            }
-            
-            loadEmailJSFromCDNs();
-        }
-    </script>
-    <script>
-        let customerData = {};
+    function sendToEmailJS(payload){
+      // Replace these with your actual IDs from EmailJS
+      const SERVICE_ID = 'service_6suiqxu';
+      const TEMPLATE_ID = 'template_nmv7e7s';
+      return emailjs.send(SERVICE_ID, TEMPLATE_ID, payload);
+    }
 
-        // Use global EmailJS configuration to avoid variable conflicts
-        // Add fallback values in case global config isn't loaded yet
-        const EMAILJS_PUBLIC_KEY = (window.EMAILJS_CONFIG && window.EMAILJS_CONFIG.PUBLIC_KEY) || 'uhKO98S0f2bW6QEZj';
-        const EMAILJS_SERVICE_ID = (window.EMAILJS_CONFIG && window.EMAILJS_CONFIG.SERVICE_ID) || 'service_bua09v8';
-        const EMAILJS_TEMPLATE_ID = (window.EMAILJS_CONFIG && window.EMAILJS_CONFIG.TEMPLATE_ID) || 'template_jm7g5bc';
+    function openAmazon(country){
+      const us = 'https://www.amazon.com/review/create-review?&asin=B0FBKLTSKS:5';
+      const au = 'https://www.amazon.com.au/review/create-review?&asin=B0DXFN4SB5:5';
+      const url = country === 'United States' ? us : au;
+      window.open(url, '_blank', 'noopener');
+    }
 
-        // Initialize EmailJS - use global variable from CDN loading system
-        let emailjsReady = window.emailjsReady || false;
+    // ---------- EVENTS ----------
+    $('#start').addEventListener('click', () => {
+      if(!validIntro()) return;
+      show('#step-choice');
+    });
 
-        // Initialize system when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('📄 Page loaded - Checking email system...');
-            
-            // Check EmailJS status
-            setTimeout(() => {
-                if (window.emailjsReady && typeof emailjs !== 'undefined') {
-                    console.log('🎉 AUTOMATIC EMAIL SYSTEM ACTIVE!');
-                    console.log('✅ Emails will be sent directly to your inbox');
-                    console.log('🔑 Using Public Key: QXeAzOq-Y_NVgZEzL');
-                    emailjsReady = true;
-                } else {
-                    console.log('⚠️ Automatic emails unavailable - using manual system');
-                    console.log('📧 Email templates will appear in console');
-                    console.log('🔧 To enable automatic emails: fix CDN blocking');
-                }
-                
-                console.log('');
-                console.log('📊 Available functions:');
-                console.log('   - testEmailJS() - Test email system');
-                console.log('   - viewStoredFeedback() - See all feedback');
-                console.log('   - exportFeedbackAsEmail() - Get email format');
-                
-                if (window.feedbackStorage && window.feedbackStorage.length > 0) {
-                    console.log(`📋 ${window.feedbackStorage.length} feedback entries stored`);
-                }
-            }, 2000); // Wait for CDN loading to complete
-        });
+    $('#btn-dissatisfied').addEventListener('click', () => {
+      state.satisfaction = 'Dissatisfied';
+      show('#step-dissat');
+    });
 
-        function showEmailStatus(elementId, success, message) {
-            const statusElement = document.getElementById(elementId);
-            statusElement.innerHTML = `<div class="email-status ${success ? 'email-success' : 'email-error'}">${message}</div>`;
-        }
+    $('#btn-satisfied').addEventListener('click', () => {
+      state.satisfaction = 'Satisfied';
+      show('#step-sat');
+    });
 
-        function showLoadingButton(buttonId, originalText) {
-            const button = document.getElementById(buttonId);
-            button.innerHTML = `<span class="loading-spinner"></span>Sending...`;
-            button.disabled = true;
-        }
+    document.querySelectorAll('button[data-back]').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{ show(e.currentTarget.getAttribute('data-back')); });
+    });
 
-        function resetButton(buttonId, originalText) {
-            const button = document.getElementById(buttonId);
-            button.innerHTML = originalText;
-            button.disabled = false;
-        }
+    // DISSAT SUBMIT
+    $('#send-dissat').addEventListener('click', async () => {
+      const feedback = $('#dissat-feedback').value.trim();
+      if(!feedback){ alert('Please write a short message.'); return; }
 
-        async function sendFeedbackEmail(data, statusElementId) {
-            console.log('📧 Processing feedback...');
-            
-            // Store feedback locally as backup
-            const feedbackKey = `yellowmango_feedback_${Date.now()}`;
-            const feedbackData = {
-                ...data,
-                timestamp: new Date().toLocaleString(),
-                id: feedbackKey
-            };
-            
-            if (!window.feedbackStorage) {
-                window.feedbackStorage = [];
-            }
-            window.feedbackStorage.push(feedbackData);
-            console.log('💾 Feedback backed up locally');
-            
-            // TRY AUTOMATIC EMAIL FIRST
-            if (window.emailjsReady && typeof emailjs !== 'undefined') {
-                console.log('🚀 Attempting automatic email send...');
-                
-                try {
-                    const templateParams = {
-                        customer_name: data.name,
-                        order_number: data.orderNumber,
-                        product: data.product,
-                        satisfaction: data.satisfied ? 'Satisfied ✅' : 'Not Satisfied ❌',
-                        feedback: data.feedback,
-                        timestamp: feedbackData.timestamp,
-                        reward_amount: '$5'
-                    };
+      const payload = {
+        name: state.name,
+        order: state.order,
+        country: state.country,
+        satisfaction: state.satisfaction,
+        feedback
+      };
 
-                    console.log('📤 Sending email with params:', templateParams);
-                    
-                    const response = await emailjs.send(
-                        EMAILJS_SERVICE_ID, 
-                        EMAILJS_TEMPLATE_ID, 
-                        templateParams
-                    );
-                    
-                    console.log('🎉 AUTOMATIC EMAIL SENT SUCCESSFULLY!', response);
-                    showEmailStatus(statusElementId, true, 'Feedback Processing');
-                    return true;
+      try{
+        await sendToEmailJS(payload);
+        $('#dissat-done').classList.remove('hide');
+        // clear textarea
+        $('#dissat-feedback').value = '';
+      }catch(err){
+        console.error(err);
+        alert('Sorry, something went wrong sending your message. Please try again.');
+      }
+    });
 
-                } catch (error) {
-                    console.log('❌ Automatic email failed:', error);
-                    console.log('🔄 Falling back to manual email system...');
-                    
-                    // Fall through to manual system
-                }
-            } else {
-                console.log('⚠️ EmailJS not ready, using manual system');
-            }
-            
-            // FALLBACK: MANUAL EMAIL SYSTEM
-            console.log('📧 Using manual email system');
-            showEmailStatus(statusElementId, false, 
-                '⚠️ Using manual email - check console for template');
-            
-            // Generate manual email template
-            console.log('\n📧 MANUAL EMAIL TEMPLATE - Copy and send:');
-            console.log('=====================================');
-            console.log('TO: your-email@yourdomain.com');
-            console.log('SUBJECT: Customer Feedback - Yellow Mango');
-            console.log('\nBODY:');
-            console.log(`Customer Name: ${data.name}`);
-            console.log(`Order Number: ${data.orderNumber}`);
-            console.log(`Product: ${data.product}`);
-            console.log(`Satisfaction: ${data.satisfied ? 'Satisfied ✅' : 'Not Satisfied ❌'}`);
-            console.log(`Feedback: ${data.feedback}`);
-            console.log(`Timestamp: ${feedbackData.timestamp}`);
-            console.log(`Reward Amount: $5`);
-            console.log('=====================================\n');
-            
-            return false; // Indicates manual mode
-        }
+    // SAT CONTINUE: copy -> send -> open Amazon
+    $('#continue-sat').addEventListener('click', async () => {
+      const feedback = $('#sat-feedback').value.trim();
+      if(!feedback){ alert('Please write your feedback first.'); return; }
 
-        // Add functions to manage stored feedback
-        window.viewStoredFeedback = function() {
-            console.log('📊 STORED FEEDBACK:');
-            console.log('==================');
-            if (!window.feedbackStorage || window.feedbackStorage.length === 0) {
-                console.log('No feedback stored yet.');
-            } else {
-                window.feedbackStorage.forEach((feedback, index) => {
-                    console.log(`\n--- Feedback #${index + 1} ---`);
-                    console.log(`Name: ${feedback.name}`);
-                    console.log(`Order: ${feedback.orderNumber}`);
-                    console.log(`Product: ${feedback.product}`);
-                    console.log(`Satisfied: ${feedback.satisfied ? 'Yes' : 'No'}`);
-                    console.log(`Feedback: ${feedback.feedback}`);
-                    console.log(`Time: ${feedback.timestamp}`);
-                });
-            }
-        };
-        
-        window.exportFeedbackAsEmail = function() {
-            if (!window.feedbackStorage || window.feedbackStorage.length === 0) {
-                console.log('❌ No feedback to export');
-                return;
-            }
-            
-            let emailBody = 'YELLOW MANGO CUSTOMER FEEDBACK REPORT\n';
-            emailBody += '=====================================\n\n';
-            
-            window.feedbackStorage.forEach((feedback, index) => {
-                emailBody += `FEEDBACK #${index + 1}\n`;
-                emailBody += `Customer Name: ${feedback.name}\n`;
-                emailBody += `Order Number: ${feedback.orderNumber}\n`;
-                emailBody += `Product: ${feedback.product}\n`;
-                emailBody += `Satisfaction: ${feedback.satisfied ? 'Satisfied ✅' : 'Not Satisfied ❌'}\n`;
-                emailBody += `Feedback: ${feedback.feedback}\n`;
-                emailBody += `Timestamp: ${feedback.timestamp}\n`;
-                emailBody += `Reward Amount: $5\n`;
-                emailBody += '\n---\n\n';
-            });
-            
-            console.log('📧 EMAIL EXPORT:\n' + emailBody);
-            
-            // Try to copy to clipboard if available
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(emailBody).then(() => {
-                    console.log('✅ Email content copied to clipboard!');
-                }).catch(() => {
-                    console.log('⚠️ Could not copy to clipboard');
-                });
-            }
-        };
+      // Copy to clipboard
+      try{ await navigator.clipboard.writeText(feedback); }catch(e){ console.warn('Clipboard copy failed', e); }
 
-        // Enhanced test function
-        window.testEmailJS = function() {
-            console.log('=== EmailJS & FEEDBACK SYSTEM TEST ===');
-            console.log('Window EmailJS ready:', window.emailjsReady);
-            console.log('Local EmailJS ready:', emailjsReady);
-            console.log('EmailJS object exists:', typeof emailjs !== 'undefined');
-            
-            if (window.EMAILJS_CONFIG) {
-                console.log('Public Key:', window.EMAILJS_CONFIG.PUBLIC_KEY);
-                console.log('Service ID:', window.EMAILJS_CONFIG.SERVICE_ID);
-                console.log('Template ID:', window.EMAILJS_CONFIG.TEMPLATE_ID);
-            }
-            
-            if (typeof emailjs !== 'undefined' && (window.emailjsReady || emailjsReady)) {
-                console.log('\n🧪 TESTING AUTOMATIC EMAIL SEND...');
-                const testData = {
-                    name: 'Test Customer',
-                    orderNumber: 'TEST-' + Date.now(),
-                    product: 'Test Product',
-                    satisfied: true,
-                    feedback: 'This is a test email sent automatically from the Yellow Mango feedback form. If you receive this, automatic emails are working!'
-                };
-                
-                // Test the actual sendFeedbackEmail function
-                sendFeedbackEmail(testData, 'test-status').then((success) => {
-                    if (success) {
-                        console.log('🎉 TEST EMAIL SENT AUTOMATICALLY!');
-                        console.log('📬 Check your inbox for the test email');
-                    } else {
-                        console.log('⚠️ Test used manual system');
-                    }
-                });
-            } else {
-                console.log('\n❌ AUTOMATIC EMAILS NOT AVAILABLE');
-                console.log('🔧 TROUBLESHOOTING STEPS:');
-                console.log('1. Check if firewall blocks cdn.jsdelivr.net');
-                console.log('2. Check if browser blocks external scripts');
-                console.log('3. Try different network/VPN');
-                console.log('4. Verify EmailJS account setup');
-                
-                console.log('\n📊 CURRENT FEEDBACK STORAGE:');
-                if (window.feedbackStorage && window.feedbackStorage.length > 0) {
-                    console.log(`${window.feedbackStorage.length} feedback entries stored`);
-                    console.log('Use viewStoredFeedback() to see all entries');
-                } else {
-                    console.log('No feedback stored yet');
-                }
-            }
-        };
+      const payload = {
+        name: state.name,
+        order: state.order,
+        country: state.country,
+        satisfaction: state.satisfaction,
+        feedback
+      };
 
-        function returnToStart() {
-            // Hide all sections
-            document.getElementById('product-selection').classList.add('hidden');
-            document.getElementById('satisfaction-question').classList.add('hidden');
-            document.getElementById('unhappy-feedback').classList.add('hidden');
-            document.getElementById('unhappy-thankyou').classList.add('hidden');
-            document.getElementById('happy-feedback').classList.add('hidden');
-            document.getElementById('review-instructions').classList.add('hidden');
-            document.getElementById('final-steps').classList.add('hidden');
-            
-            // Show initial form
-            document.getElementById('initial-form').classList.remove('hidden');
-            
-            // Clear form data
-            document.getElementById('customer-name').value = '';
-            document.getElementById('order-number').value = '';
-            document.getElementById('negative-feedback').value = '';
-            document.getElementById('positive-feedback').value = '';
-            
-            // Clear email status messages
-            document.getElementById('negative-email-status').innerHTML = '';
-            document.getElementById('positive-email-status').innerHTML = '';
-            
-            // Reset product selection
-            document.querySelectorAll('.product-option').forEach(option => {
-                option.classList.remove('selected');
-            });
-            document.getElementById('continue-btn').style.opacity = '0.5';
-            document.getElementById('continue-btn').style.cursor = 'not-allowed';
-            document.getElementById('continue-btn').disabled = true;
-            
-            // Reset customer data
-            customerData = {};
-        }
+      try{
+        await sendToEmailJS(payload);
+      }catch(err){ console.error(err); /* continue regardless */ }
 
-        function proceedToProductSelection() {
-            const name = document.getElementById('customer-name').value.trim();
-            const orderNumber = document.getElementById('order-number').value.trim();
-            
-            if (!name || !orderNumber) {
-                alert('Please fill in both your name and order number.');
-                return;
-            }
-            
-            customerData.name = name;
-            customerData.orderNumber = orderNumber;
-            
-            document.getElementById('initial-form').classList.add('hidden');
-            document.getElementById('product-selection').classList.remove('hidden');
-        }
-
-        function selectProduct(productType) {
-            // Remove selection from all products
-            document.querySelectorAll('.product-option').forEach(option => {
-                option.classList.remove('selected');
-            });
-            
-            // Add selection to clicked product
-            event.target.closest('.product-option').classList.add('selected');
-            
-            // Store selected product
-            customerData.product = productType;
-            
-            // Enable continue button
-            const continueBtn = document.getElementById('continue-btn');
-            continueBtn.style.opacity = '1';
-            continueBtn.style.cursor = 'pointer';
-            continueBtn.disabled = false;
-        }
-
-        function proceedToSatisfaction() {
-            if (!customerData.product) {
-                alert('Please select a product before continuing.');
-                return;
-            }
-            
-            document.getElementById('product-selection').classList.add('hidden');
-            document.getElementById('satisfaction-question').classList.remove('hidden');
-        }
-
-        function handleUnhappy() {
-            document.getElementById('satisfaction-question').classList.add('hidden');
-            document.getElementById('unhappy-feedback').classList.remove('hidden');
-        }
-
-        function handleHappy() {
-            document.getElementById('satisfaction-question').classList.add('hidden');
-            document.getElementById('happy-feedback').classList.remove('hidden');
-        }
-
-        async function submitNegativeFeedback() {
-            const feedback = document.getElementById('negative-feedback').value.trim();
-            
-            if (!feedback) {
-                alert('Please provide your feedback before submitting.');
-                return;
-            }
-            
-            // Show loading state
-            showLoadingButton('negative-submit-btn', 'Submit Feedback');
-            
-            customerData.feedback = feedback;
-            customerData.satisfied = false;
-            customerData.timestamp = new Date().toLocaleString();
-            
-            // Send email (automatic or manual)
-            const emailSent = await sendFeedbackEmail(customerData, 'negative-email-status');
-            
-            // Reset button
-            resetButton('negative-submit-btn', 'Submit Feedback');
-            
-            // Show thank you page with email status
-            document.getElementById('unhappy-feedback').classList.add('hidden');
-            document.getElementById('unhappy-thankyou').classList.remove('hidden');
-            
-            // Update email status in thank you page
-            const statusElement = document.getElementById('unhappy-email-message');
-            if (emailSent) {
-                statusElement.innerHTML = 'Response Processing';
-                statusElement.style.color = '#28a745';
-            } else {
-                statusElement.innerHTML = '⚠️ Using manual email system - check console (F12) for email template';
-                statusElement.style.color = '#ffc107';
-            }
-        }
-
-        async function submitPositiveFeedback() {
-            const feedback = document.getElementById('positive-feedback').value.trim();
-            
-            if (!feedback) {
-                alert('Please provide your feedback before submitting.');
-                return;
-            }
-            
-            // Show loading state
-            showLoadingButton('positive-submit-btn', 'Submit Feedback');
-            
-            customerData.feedback = feedback;
-            customerData.satisfied = true;
-            customerData.timestamp = new Date().toLocaleString();
-            
-            // Send email (automatic or manual)
-            const emailSent = await sendFeedbackEmail(customerData, 'positive-email-status');
-            
-            // Reset button
-            resetButton('positive-submit-btn', 'Submit Feedback');
-            
-            // If automatic email worked, go straight to Amazon
-            if (emailSent) {
-                // Copy feedback to clipboard and go to Amazon
-                try {
-                    await navigator.clipboard.writeText(feedback);
-                    console.log('✅ Feedback copied to clipboard');
-                } catch (err) {
-                    console.log('⚠️ Could not copy to clipboard:', err);
-                }
-                
-                setTimeout(() => {
-                    openAmazon();
-                }, 1500);
-            } else {
-                // Manual system - wait longer for user to see console instructions
-                setTimeout(() => {
-                    try {
-                        navigator.clipboard.writeText(feedback);
-                        console.log('✅ Feedback copied to clipboard');
-                    } catch (err) {
-                        console.log('⚠️ Could not copy to clipboard:', err);
-                    }
-                    openAmazon();
-                }, 3000);
-            }
-        }
-
-        function shareReview() {
-            openAmazon();
-        }
-
-        function openAmazon() {
-            let amazonUrl;
-            
-            // Determine the correct Amazon URL based on selected product
-            switch(customerData.product) {
-                case 'portable-blender':
-                    amazonUrl = 'https://www.amazon.com/review/create-review?&asin=B0FBKLTSKS:5';
-                    break;
-                case 'shaker-blender':
-                    amazonUrl = 'https://www.amazon.com/review/create-review?&asin=B0F82Z2C52:5';
-                    break;
-                case 'heated-pad-mug':
-                    amazonUrl = 'https://www.amazon.com.au/review/create-review?&asin=B0DXFRG589:5';
-                    break;
-                default:
-                    amazonUrl = 'https://www.amazon.com/review/create-review/error?ie=UTF8&channel=glance-detail&asin=B0F82Z2C52';
-            }
-            
-            window.open(amazonUrl, '_blank');
-        }
-    </script>
+      openAmazon(state.country);
+    });
+  </script>
 </body>
 </html>
